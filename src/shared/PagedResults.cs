@@ -1,3 +1,4 @@
+
 namespace SimpleMDB;
 
 public class PagedResult<T>
@@ -9,5 +10,10 @@ public class PagedResult<T>
     {
         Values = values;
         TotalCount = totalCount;
+    }
+
+    public static implicit operator PagedResult<T>(User v)
+    {
+        throw new NotImplementedException();
     }
 }
