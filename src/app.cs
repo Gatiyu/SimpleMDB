@@ -23,12 +23,13 @@ namespace SimpleMDB
             var userService = new MockUserService(userRepository);
             var userController = new UserController(userService);
             var authController = new AuthController(userService);
-           
+
 
             router = new HttpRouter();
 
-            router.AddGet("/", authController.LandingPageGet); // <-- agregado ;
+            router.AddGet("/", authController.LandingPageGet);
             router.AddGet("/users", userController.ViewAllGet);
+            router.AddGet("/users/add", userController.AddGet);
         }
 
         public async Task Start()
