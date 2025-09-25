@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Collections;
 using System.Threading.Tasks;
+using System.Collections.Specialized;
 
 namespace SimpleMDB
 {
@@ -14,8 +15,11 @@ namespace SimpleMDB
             this.userService = userService;
         }
 
+        //GET /user?page=1&size=5
         public async Task ViewAllGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
+            string message = req.QueryString["message"] ?? "";
+
             int page = int.TryParse(req.QueryString["page"], out int p) ? p : 1;
             int size = int.TryParse(req.QueryString["size"], out int s) ? s : 5;
 
@@ -64,15 +68,19 @@ namespace SimpleMDB
                     <a href=""?page={page + 1}&size={size}"">Next</a>
                     <a href=""?page={pageCount}&size={size}"">Last</a>
                 </div>
+                <div>
+                    {message}
+                </div>
                 ";
                 html = HtmlTemplates.Base("SimpleMDB", "Users View All Page", html);
                 await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
             }
         }
 
-        // /users/add
+        // GET/users/add
         public async Task AddGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
+            string message = req.QueryString["message"] ?? "";
             string roles = "";
 
             foreach (var role in Roles.ROLES)
@@ -80,8 +88,8 @@ namespace SimpleMDB
                 roles += $@"<option value=""{role}"">{role}</option>";
             }
 
-            string html = $@"
-        <form action=""/user/add"" method=""POST"">
+                string html = $@"
+            <form action=""/users/add"" method=""POST"">
             <label for=""username"">Username:</label>
             <input id=""username"" name=""username"" type=""text"" placeholder=""Username"">
             <label for=""password"">Password:</label>
@@ -92,10 +100,40 @@ namespace SimpleMDB
             </select>
             <input type=""submit"" value=""Add"">
         </form>
+        <div>
+        {message}
+        </div>
     ";
 
             html = HtmlTemplates.Base("SimpleMDB", "Users Add Page", html);
             await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
+        }
+
+        // POST /users/add
+
+        public async Task AddPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+        {
+            var formData = (NameValueCollection?)options["req.form"] ?? [];
+
+            string username = formData["username"] ?? "";
+            string password = formData["password"] ?? "";
+            string role = formData["role"] ?? Roles.USER;
+
+            Console.WriteLine($"username={username}");
+            User newUser = new User(0, username, password, "", role);
+
+            var result = await userService.Create(newUser);
+
+            if (result.IsValid)
+            {
+                options["message"] = "User added successfully";
+                await HttpUtils.Redirect(req, res, options, "/users");
+            }
+            else
+            {
+                options["message"] = result.Error!.Message;
+                await HttpUtils.Redirect(req, res, options, "/users/add");
+            }
         }
     }
 }

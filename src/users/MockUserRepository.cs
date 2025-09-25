@@ -40,7 +40,6 @@ public class MockUserRepository : IUserRepository
         int start = Math.Clamp((page - 1) * size, 0, totalCount);
         int length = Math.Clamp(size, 0, totalCount - start);
 
-        // Arreglado: List<T> en vez de list<T>, y usamos GetRange en vez de Slice (que no existe en C#)
         List<User> values = users.GetRange(start, length);
 
         var pagedResult = new PagedResult<User>(values, totalCount);
@@ -52,6 +51,7 @@ public class MockUserRepository : IUserRepository
     {
         user.Id = idCount++;
         users.Add(user);
+        Console.WriteLine(user);
 
         return await Task.FromResult(user);
     }

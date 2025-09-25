@@ -19,10 +19,19 @@ public class HttpUtils
         res.Close();
     }
 
+    public static async Task Redirect(HttpListenerRequest req, HttpListenerResponse res, Hashtable options, string location)
+    {
+        string message = (string?)options["message"] ?? "";
+        string query = string.IsNullOrWhiteSpace(message) ? "" : "?message=" + HttpUtility.UrlEncode(message);
+        res.Redirect(location + query);
+        res.Close();
+
+        await Task.CompletedTask;
+    }
     public static async Task ReadRequestFormData(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
     {
         string? type = req.ContentType ?? "";
-        if (type.StartsWith("application/x-www-urlencoder"))
+            if (type.StartsWith("application/x-www-form-urlencoded"))
         {
             using var sr = new StreamReader(req.InputStream, Encoding.UTF8);
             string body = await sr.ReadToEndAsync();
