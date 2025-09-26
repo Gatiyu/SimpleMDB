@@ -43,8 +43,8 @@ namespace SimpleMDB
                         <td>{user.Password}</td>
                         <td>{user.Salt}</td>
                         <td>{user.Role}</td>
-                        <td><a href=""/users/view?iud={user.Id}"">View</a></td>
-                        <td><a href=""/users/edit?iud={user.Id}"">Edit</a></td>
+                        <td><a href=""/users/view?uid={user.Id}"">View</a></td>
+                        <td><a href=""/users/edit?uid={user.Id}"">Edit</a></td>
                         
                     </tr>
                     ";
@@ -146,9 +146,9 @@ namespace SimpleMDB
         {
             string message = req.QueryString["message"] ?? "";
 
-            int iud = int.TryParse(req.QueryString["iud"], out int u) ? u : 1;
+            int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : 1;
 
-            Result<User> result = await userService.Read(iud);
+            Result<User> result = await userService.Read(uid);
 
             if (result.IsValid)
             {
@@ -187,9 +187,9 @@ namespace SimpleMDB
         {
             string message = req.QueryString["message"] ?? "";
 
-            int iud = int.TryParse(req.QueryString["iud"], out int u) ? u : 1;
+            int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : 1;
 
-            Result<User> result = await userService.Read(iud);
+            Result<User> result = await userService.Read(uid);
 
             if (result.IsValid)
             {
@@ -203,7 +203,7 @@ namespace SimpleMDB
                 }
 
                 string html = $@"
-                <form action=""/users/add"" method=""POST"">
+                <form action=""/users/edit?uid={uid}"" method=""POST"">
                 <label for=""username"">Username:</label>
                 <input id=""username"" name=""username"" type=""text"" placeholder=""Username"" value = ""{user.Username}"">
                 <label for=""password"">Password:</label>
@@ -225,11 +225,12 @@ namespace SimpleMDB
             
         }
         
-
-        // POST /users/post
+        // POST /users/eedit?uid=1
 
         public async Task EditPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
+            int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : 1;
+            
             var formData = (NameValueCollection?)options["req.form"] ?? [];
 
             string username = formData["username"] ?? "";
@@ -239,11 +240,11 @@ namespace SimpleMDB
             Console.WriteLine($"username={username}");
             User newUser = new User(0, username, password, "", role);
 
-            var result = await userService.Create(newUser);
+            var result = await userService.Update(uid,newUser);
 
             if (result.IsValid)
             {
-                options["message"] = "User added successfully";
+                options["message"] = "User edited successfully";
                 await HttpUtils.Redirect(req, res, options, "/users");
             }
             else

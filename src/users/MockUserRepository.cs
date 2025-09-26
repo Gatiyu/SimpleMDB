@@ -68,7 +68,6 @@ public class MockUserRepository : IUserRepository
 
         if (user != null)
         {
-            // Arreglado: typo "Usernam" → "Username"
             user.Username = newUser.Username;
             user.Password = newUser.Password;
             user.Salt = newUser.Salt;
@@ -83,7 +82,6 @@ public class MockUserRepository : IUserRepository
 
         if (user != null)
         {
-            // Arreglado: no puedes hacer user.Remove(user), debe ser users.Remove(user)
             users.Remove(user);
         }
         return await Task.FromResult(user);
