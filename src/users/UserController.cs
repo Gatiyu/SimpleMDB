@@ -45,7 +45,7 @@ namespace SimpleMDB
                         <td>{user.Role}</td>
                         <td><a href=""/users/view?uid={user.Id}"">View</a></td>
                         <td><a href=""/users/edit?uid={user.Id}"">Edit</a></td>
-                        
+                        <td><a href=""/users/remove?uid={user.Id}"">Remove</a></td>
                     </tr>
                     ";
                 }
@@ -61,6 +61,7 @@ namespace SimpleMDB
                         <th>Role</th>
                         <th>View</th>
                         <th>Edit</th>
+                        <th>Remove</th>
                     </thead>
                     <tbody>
                         {rows}
@@ -221,16 +222,16 @@ namespace SimpleMDB
 
                 html = HtmlTemplates.Base("SimpleMDB", "Users Edit Page", html);
                 await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
-            }        
-            
+            }
+
         }
-        
+
         // POST /users/eedit?uid=1
 
         public async Task EditPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
             int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : 1;
-            
+
             var formData = (NameValueCollection?)options["req.form"] ?? [];
 
             string username = formData["username"] ?? "";
@@ -240,7 +241,7 @@ namespace SimpleMDB
             Console.WriteLine($"username={username}");
             User newUser = new User(0, username, password, "", role);
 
-            var result = await userService.Update(uid,newUser);
+            var result = await userService.Update(uid, newUser);
 
             if (result.IsValid)
             {
@@ -251,6 +252,27 @@ namespace SimpleMDB
             {
                 options["message"] = result.Error!.Message;
                 await HttpUtils.Redirect(req, res, options, "/users/add");
+            }
+        }
+
+        //GET /users/remove?uid=1
+        
+          public async Task RemoveGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+        {
+
+            int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : 1;
+
+            Result<User> result = await userService.Delete(uid);
+
+            if (result.IsValid)
+            {
+                options["message"] = "User removed successfully";
+                await HttpUtils.Redirect(req, res, options, "/users");
+            }
+            else
+            {
+                options["message"] = result.Error!.Message;
+                await HttpUtils.Redirect(req, res, options, "/users");
             }
         }
     }

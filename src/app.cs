@@ -35,6 +35,8 @@ namespace SimpleMDB
             router.AddGet("/users/view", userController.ViewGet);
             router.AddGet("/users/edit", userController.EditGet);
             router.AddPost("/users/edit", userController.EditPost);
+            router.AddGet("/users/remove", userController.RemoveGet);
+
 
         }
 
