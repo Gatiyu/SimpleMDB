@@ -26,18 +26,31 @@ namespace SimpleMDB
             var userController = new UserController(userService);
             var authController = new AuthController(userService);
 
+            var actorRepository = new MockActorRepository();
+            var actorService = new MockActorService(actorRepository);
+            var actorController = new ActorController(actorService);
+
             router = new HttpRouter();
             router.Use(HttpUtils.ServeStaticFile);
             router.Use(HttpUtils.ReadRequestFormData);
 
             router.AddGet("/", authController.LandingPageGet);
-            router.AddGet("/users", userController.ViewAllGet);
-            router.AddGet("/users/add", userController.AddGet);
-            router.AddPost("/users/add", userController.AddPost);
-            router.AddGet("/users/view", userController.ViewGet);
-            router.AddGet("/users/edit", userController.EditGet);
-            router.AddPost("/users/edit", userController.EditPost);
-            router.AddPost("/users/remove", userController.RemovePost);
+
+            router.AddGet("/users", userController.ViewAllUsersGet);
+            router.AddGet("/users/add", userController.AddUserGet);
+            router.AddPost("/users/add", userController.AddUserPost);
+            router.AddGet("/users/view", userController.ViewUserGet);
+            router.AddGet("/users/edit", userController.EditUserGet);
+            router.AddPost("/users/edit", userController.EditUserPost);
+            router.AddPost("/users/remove", userController.RemoveUserPost);
+
+            router.AddGet("/actors", actorController.ViewAllActorsGet);
+            router.AddGet("/actors/add", actorController.AddActorGet);
+            router.AddPost("/actors/add", actorController.AddActorPost);
+            router.AddGet("/actors/view", actorController.ViewActorGet);
+            router.AddGet("/actors/edit", actorController.EditActorGet);
+            router.AddPost("/actors/edit", actorController.EditActorPost);
+            router.AddPost("/actors/remove", actorController.RemoveActorPost);
         }
 
         public async Task Start()
@@ -104,9 +117,10 @@ namespace SimpleMDB
                 }
 
                 TimeSpan elapsed = DateTime.UtcNow - startTime;
-                
+
                 Console.WriteLine($"Request {rid}: {req.HttpMethod} {req.RawUrl} from {req.UserHostName} --> {res.StatusCode} ({res.ContentLength64} bytes [{res.ContentType}]in {elapsed.TotalMilliseconds} ms) error: \"{error}\"");
             }
         }
     }
 }
+

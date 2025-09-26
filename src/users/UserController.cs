@@ -16,7 +16,7 @@ namespace SimpleMDB
         }
 
         //GET /user?page=1&size=5
-        public async Task ViewAllGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+        public async Task ViewAllUsersGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
             string message = req.QueryString["message"] ?? "";
 
@@ -31,7 +31,7 @@ namespace SimpleMDB
                 List<User> users = pagedResult.Values;
                 int userCount = pagedResult.TotalCount;
 
-                string html = HtmlTemplates.ViewAllGet(users, userCount, page, size);
+                string html = UsersHtmlTemplates.ViewAllUsersGet(users, userCount, page, size);
                 html = HtmlTemplates.Base("SimpleMDB", "Users View All Page", html, message);
                 await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
             }
@@ -43,13 +43,13 @@ namespace SimpleMDB
         }
 
         // GET/users/add
-        public async Task AddGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+        public async Task AddUserGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
             string username = req.QueryString["username"] ?? "";
             string message = req.QueryString["message"] ?? "";
             string role = req.QueryString["role"] ?? "";
 
-            string html = HtmlTemplates.AddGet(username, role);
+            string html = UsersHtmlTemplates.AddUserGet(username, role);
 
             html = HtmlTemplates.Base("SimpleMDB", "Users Add Page", html, message);
             await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.Created, html);
@@ -57,7 +57,7 @@ namespace SimpleMDB
 
         // POST /users/add
 
-        public async Task AddPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+        public async Task AddUserPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
             var formData = (NameValueCollection?)options["req.form"] ?? [];
 
@@ -88,7 +88,7 @@ namespace SimpleMDB
         }
 
         //GET /users/view?uid
-        public async Task ViewGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+        public async Task ViewUserGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
             string message = req.QueryString["message"] ?? "";
 
@@ -100,7 +100,7 @@ namespace SimpleMDB
             {
                 User user = result.Value!;
 
-                string html = HtmlTemplates.ViewGet(user);
+                string html = UsersHtmlTemplates.ViewUserGet(user);
 
                 html = HtmlTemplates.Base("SimpleMDB", "Users View Page", html, message);
                 await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
@@ -108,7 +108,7 @@ namespace SimpleMDB
         }
 
         // GET /users/edit?uid=1
-        public async Task EditGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+        public async Task EditUserGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
             string message = req.QueryString["message"] ?? "";
 
@@ -120,7 +120,7 @@ namespace SimpleMDB
             {
                 User user = result.Value!;
 
-                string html = HtmlTemplates.EditGet(user, uid);
+                string html = UsersHtmlTemplates.EditUserGet(user, uid);
 
                 html = HtmlTemplates.Base("SimpleMDB", "Users Edit Page", html, message);
                 await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
@@ -130,7 +130,7 @@ namespace SimpleMDB
 
         // POST /users/eedit?uid=1
 
-        public async Task EditPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+        public async Task EditUserPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
             int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : 1;
 
@@ -159,7 +159,7 @@ namespace SimpleMDB
 
         //GET /users/remove?uid=1
         
-          public async Task RemovePost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+          public async Task RemoveUserPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
 
             int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : 1;
