@@ -27,6 +27,7 @@ namespace SimpleMDB
             var authController = new AuthController(userService);
 
             router = new HttpRouter();
+            router.Use(HttpUtils.ServeStaticFile);
             router.Use(HttpUtils.ReadRequestFormData);
 
             router.AddGet("/", authController.LandingPageGet);
@@ -36,7 +37,7 @@ namespace SimpleMDB
             router.AddGet("/users/view", userController.ViewGet);
             router.AddGet("/users/edit", userController.EditGet);
             router.AddPost("/users/edit", userController.EditPost);
-            router.AddGet("/users/remove", userController.RemoveGet);
+            router.AddPost("/users/remove", userController.RemovePost);
         }
 
         public async Task Start()
@@ -61,6 +62,11 @@ namespace SimpleMDB
             var req = ctx.Request;
             var res = ctx.Response;
             var options = new Hashtable();
+
+            var rid = req.Headers["X-Request-ID"] ?? requestId.ToString().PadLeft(6, ' ');
+            var method = req.HttpMethod;
+            var url = req.RawUrl;
+            var remoteEndpoint = req.RemoteEndPoint;
 
             res.StatusCode = HttpRouter.RESPONSE_NOT_SENT_YET;
             DateTime startTime = DateTime.UtcNow;
@@ -97,9 +103,9 @@ namespace SimpleMDB
                     await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.NotFound, html);
                 }
 
-                string rid = req.Headers["X-Request-ID"] ?? requestId.ToString().PadLeft(6, ' ');
                 TimeSpan elapsed = DateTime.UtcNow - startTime;
-                Console.WriteLine($"Request {rid}: {req.HttpMethod} {req.RawUrl} from {req.UserHostName} --> {res.StatusCode} ({res.ContentLength64} bytes in {elapsed.TotalMilliseconds} ms) error: \"{error}\"");
+                
+                Console.WriteLine($"Request {rid}: {req.HttpMethod} {req.RawUrl} from {req.UserHostName} --> {res.StatusCode} ({res.ContentLength64} bytes [{res.ContentType}]in {elapsed.TotalMilliseconds} ms) error: \"{error}\"");
             }
         }
     }

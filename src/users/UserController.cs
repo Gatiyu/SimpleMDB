@@ -30,56 +30,15 @@ namespace SimpleMDB
                 PagedResult<User> pagedResult = result.Value!;
                 List<User> users = pagedResult.Values;
                 int userCount = pagedResult.TotalCount;
-                int pageCount = (int)Math.Ceiling((double)userCount / size);
 
-                string rows = "";
-
-                foreach (var user in users)
-                {
-                    rows += @$"
-                    <tr>
-                        <td>{user.Id}</td>
-                        <td>{user.Username}</td>
-                        <td>{user.Password}</td>
-                        <td>{user.Salt}</td>
-                        <td>{user.Role}</td>
-                        <td><a href=""/users/view?uid={user.Id}"">View</a></td>
-                        <td><a href=""/users/edit?uid={user.Id}"">Edit</a></td>
-                        <td><a href=""/users/remove?uid={user.Id}"">Remove</a></td>
-                    </tr>
-                    ";
-                }
-
-                string html = $@"
-                <a href=""/users/add"">Add New User</a>
-                <table border=""1"">
-                    <thead>
-                        <th>Id</th>
-                        <th>Username</th>
-                        <th>Password</th>
-                        <th>Salt</th>
-                        <th>Role</th>
-                        <th>View</th>
-                        <th>Edit</th>
-                        <th>Remove</th>
-                    </thead>
-                    <tbody>
-                        {rows}
-                    </tbody>
-                </table>
-                <div>
-                    <a href=""?page=1&size={size}"">First</a>
-                    <a href=""?page={page - 1}&size={size}"">Prev</a>
-                    <span>{page} / {pageCount}</span>
-                    <a href=""?page={page + 1}&size={size}"">Next</a>
-                    <a href=""?page={pageCount}&size={size}"">Last</a>
-                </div>
-                <div>
-                    {message}
-                </div>
-                ";
-                html = HtmlTemplates.Base("SimpleMDB", "Users View All Page", html);
+                string html = HtmlTemplates.ViewAllGet(users, userCount, page, size);
+                html = HtmlTemplates.Base("SimpleMDB", "Users View All Page", html, message);
                 await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
+            }
+            else
+            {
+                HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
+                await HttpUtils.Redirect(req, res, options, "/");
             }
         }
 
@@ -90,33 +49,10 @@ namespace SimpleMDB
             string message = req.QueryString["message"] ?? "";
             string role = req.QueryString["role"] ?? "";
 
-            string roles = "";
+            string html = HtmlTemplates.AddGet(username, role);
 
-            foreach (var r in Roles.ROLES)
-            {
-                string selected = r == role ? " selected" : "";
-                roles += $@"<option value=""{r}""{selected}>{r}</option>";
-            }
-
-            string html = $@"
-            <form action=""/users/add"" method=""POST"">
-            <label for=""username"">Username:</label>
-            <input id=""username"" name=""username"" type=""text"" placeholder=""Username"" value=""{username}"">
-            <label for=""password"">Password:</label>
-            <input id=""password"" name=""password"" type=""password"" placeholder=""Password"">
-            <label for=""role"">Role</label>
-            <select id=""role"" name=""role"">
-                {roles}
-            </select>
-            <input type=""submit"" value=""Add"">
-        </form>
-        <div>
-        {message}
-        </div>
-    ";
-
-            html = HtmlTemplates.Base("SimpleMDB", "Users Add Page", html);
-            await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
+            html = HtmlTemplates.Base("SimpleMDB", "Users Add Page", html, message);
+            await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.Created, html);
         }
 
         // POST /users/add
@@ -138,7 +74,7 @@ namespace SimpleMDB
             {
                 HttpUtils.AddOptions(options, "redirect", "message", "User added successfully");
 
-                await HttpUtils.Redirect(req, res, options, "/users");
+                await HttpUtils.Redirect(req, res, options, "/users"); //PRG
             }
             else
             {
@@ -164,30 +100,9 @@ namespace SimpleMDB
             {
                 User user = result.Value!;
 
-                string html = $@"
-                <table border=""1"">
-                    <thead>
-                        <th>Id</th>
-                        <th>Username</th>
-                        <th>Password</th>
-                        <th>Salt</th>
-                        <th>Role</th>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>{user.Id}</td>
-                        <td>{user.Username}</td>
-                        <td>{user.Password}</td>
-                        <td>{user.Salt}</td>
-                        <td>{user.Role}</td>
-                    </tr>
-                    </tbody>
-                <div>
-                    {message}
-                </div>
-                ";
+                string html = HtmlTemplates.ViewGet(user);
 
-                html = HtmlTemplates.Base("SimpleMDB", "Users View Page", html);
+                html = HtmlTemplates.Base("SimpleMDB", "Users View Page", html, message);
                 await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
             }
         }
@@ -204,32 +119,10 @@ namespace SimpleMDB
             if (result.IsValid)
             {
                 User user = result.Value!;
-                string roles = "";
 
-                foreach (var role in Roles.ROLES)
-                {
-                    string selected = (role == user.Role) ? " selected" : "";
-                    roles += $@"<option value=""{role}""{selected}>{role}</option>";
-                }
+                string html = HtmlTemplates.EditGet(user, uid);
 
-                string html = $@"
-                <form action=""/users/edit?uid={uid}"" method=""POST"">
-                <label for=""username"">Username:</label>
-                <input id=""username"" name=""username"" type=""text"" placeholder=""Username"" value = ""{user.Username}"">
-                <label for=""password"">Password:</label>
-                <input id=""password"" name=""password"" type=""password"" placeholder=""Password"" value=""{user.Password}"">
-                <label for=""role"">Role</label>
-                <select id=""role"" name=""role"">
-                   {roles}
-                </select>   
-             <input type=""submit"" value=""Edit"">
-            </form>
-            <div>
-            {message}
-            </div>
-            ";
-
-                html = HtmlTemplates.Base("SimpleMDB", "Users Edit Page", html);
+                html = HtmlTemplates.Base("SimpleMDB", "Users Edit Page", html, message);
                 await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
             }
 
@@ -254,19 +147,19 @@ namespace SimpleMDB
 
             if (result.IsValid)
             {
-                options["message"] = "User edited successfully";
+                HttpUtils.AddOptions(options, "redirect", "message", "User edited successfully!");
                 await HttpUtils.Redirect(req, res, options, "/users");
             }
             else
             {
-                options["message"] = result.Error!.Message;
+                HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
                 await HttpUtils.Redirect(req, res, options, "/users/add");
             }
         }
 
         //GET /users/remove?uid=1
         
-          public async Task RemoveGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+          public async Task RemovePost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
 
             int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : 1;
@@ -275,12 +168,12 @@ namespace SimpleMDB
 
             if (result.IsValid)
             {
-                options["message"] = "User removed successfully";
+                HttpUtils.AddOptions(options, "redirect", "message", "User removed successfully!");
                 await HttpUtils.Redirect(req, res, options, "/users");
             }
             else
             {
-                options["message"] = result.Error!.Message;
+                HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
                 await HttpUtils.Redirect(req, res, options, "/users");
             }
         }
