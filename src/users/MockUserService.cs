@@ -1,5 +1,6 @@
 // MockUserService.cs
 using System;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 
 namespace SimpleMDB;
@@ -21,9 +22,14 @@ public class MockUserService : IUserService
             : new Result<PagedResult<User>>(pagedResult);
     }
 
-    public async Task<Result<User>> Create(User user)
+    public async Task<Result<User>> Create(User newUser)
     {
-        var createdUser = await userRepository.Create(user);
+        if (string.IsNullOrWhiteSpace(newUser.Username) || newUser.Username.Length > 16)
+        {
+            return new Result<User>(new Exception("Username cannot be empty nor have more than 16 characters."));
+        }
+
+        var createdUser = await userRepository.Create(newUser);
         return createdUser == null
             ? new Result<User>(new Exception("User could not be created."))
             : new Result<User>(createdUser);

@@ -86,18 +86,22 @@ namespace SimpleMDB
         // GET/users/add
         public async Task AddGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
+            string username = req.QueryString["username"] ?? "";
             string message = req.QueryString["message"] ?? "";
+            string role = req.QueryString["role"] ?? "";
+
             string roles = "";
 
-            foreach (var role in Roles.ROLES)
+            foreach (var r in Roles.ROLES)
             {
-                roles += $@"<option value=""{role}"">{role}</option>";
+                string selected = r == role ? " selected" : "";
+                roles += $@"<option value=""{r}""{selected}>{r}</option>";
             }
 
             string html = $@"
             <form action=""/users/add"" method=""POST"">
             <label for=""username"">Username:</label>
-            <input id=""username"" name=""username"" type=""text"" placeholder=""Username"">
+            <input id=""username"" name=""username"" type=""text"" placeholder=""Username"" value=""{username}"">
             <label for=""password"">Password:</label>
             <input id=""password"" name=""password"" type=""password"" placeholder=""Password"">
             <label for=""role"">Role</label>
@@ -132,12 +136,17 @@ namespace SimpleMDB
 
             if (result.IsValid)
             {
-                options["message"] = "User added successfully";
+                HttpUtils.AddOptions(options, "redirect", "message", "User added successfully");
+
                 await HttpUtils.Redirect(req, res, options, "/users");
             }
             else
             {
-                options["message"] = result.Error!.Message;
+                HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
+                HttpUtils.AddOptions(options, "redirect", "username", username);
+                HttpUtils.AddOptions(options, "redirect", "role", role);
+
+
                 await HttpUtils.Redirect(req, res, options, "/users/add");
             }
         }
