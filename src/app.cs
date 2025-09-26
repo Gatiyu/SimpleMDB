@@ -32,6 +32,8 @@ namespace SimpleMDB
             router.AddGet("/users", userController.ViewAllGet);
             router.AddGet("/users/add", userController.AddGet);
             router.AddPost("/users/add", userController.AddPost);
+            router.AddGet("/users/view", userController.ViewGet);
+
         }
 
         public async Task Start()

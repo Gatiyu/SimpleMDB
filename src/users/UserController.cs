@@ -43,6 +43,7 @@ namespace SimpleMDB
                         <td>{user.Password}</td>
                         <td>{user.Salt}</td>
                         <td>{user.Role}</td>
+                        <td><a href=""/users/view?iud={user.Id}"">View</a></td>
                     </tr>
                     ";
                 }
@@ -56,6 +57,7 @@ namespace SimpleMDB
                         <th>Password</th>
                         <th>Salt</th>
                         <th>Role</th>
+                        <th>View</th>
                     </thead>
                     <tbody>
                         {rows}
@@ -88,7 +90,7 @@ namespace SimpleMDB
                 roles += $@"<option value=""{role}"">{role}</option>";
             }
 
-                string html = $@"
+            string html = $@"
             <form action=""/users/add"" method=""POST"">
             <label for=""username"">Username:</label>
             <input id=""username"" name=""username"" type=""text"" placeholder=""Username"">
@@ -133,6 +135,47 @@ namespace SimpleMDB
             {
                 options["message"] = result.Error!.Message;
                 await HttpUtils.Redirect(req, res, options, "/users/add");
+            }
+        }
+
+        //GET /users/view?uid
+        public async Task ViewGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+        {
+            string message = req.QueryString["message"] ?? "";
+
+            int iud = int.TryParse(req.QueryString["iud"], out int u) ? u : 1;
+
+            Result<User> result = await userService.Read(iud);
+
+            if (result.IsValid)
+            {
+                User user = result.Value!;
+
+                string html = $@"
+                <table border=""1"">
+                    <thead>
+                        <th>Id</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Salt</th>
+                        <th>Role</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>{user.Id}</td>
+                        <td>{user.Username}</td>
+                        <td>{user.Password}</td>
+                        <td>{user.Salt}</td>
+                        <td>{user.Role}</td>
+                    </tr>
+                    </tbody>
+                <div>
+                    {message}
+                </div>
+                ";
+
+                html = HtmlTemplates.Base("SimpleMDB", "Users View Page", html);
+                await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
             }
         }
     }
