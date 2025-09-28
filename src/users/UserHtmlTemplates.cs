@@ -27,6 +27,9 @@ public class UsersHtmlTemplates
                     ";
         }
 
+        string pDisable = (page > 1).ToString().ToLower();
+        string nDisable = (page < pageCount).ToString().ToLower();
+
         string html = $@"
             <div class-""add"">
                 <a href=""/users/add"">Add New User</a>
@@ -46,15 +49,15 @@ public class UsersHtmlTemplates
                         {rows}
                     </tbody>
                 </table>
-                <div class""pagination"">
-                    <a href=""?page=1&size={size}"">First</a>
-                    <a href=""?page={page - 1}&size={size}"">Prev</a>
-                    <span>{page} / {pageCount}</span>
-                    <a href=""?page={page + 1}&size={size}"">Next</a>
-                    <a href=""?page={pageCount}&size={size}"">Last</a>
-                </div>
+                <div class=""pagination"">
+                <a href=""?page=1&size={size}"" onclick=""return {pDisable};"">First</a>
+                <a href=""?page={Math.Max(1, page - 1)}&size={size}"" onclick=""return {pDisable};"">Prev</a>
+                <span>{page} / {Math.Max(1, pageCount)}</span>
+                <a href=""?page={Math.Min(pageCount, page + 1)}&size={size}"" onclick=""return {nDisable};"">Next</a>
+                <a href=""?page={pageCount}&size={size}"" onclick=""return {nDisable};"">Last</a>
+            </div>
+            ";
 
-                ";
         return html;
     }
     public static string AddUserGet(string username, string role)

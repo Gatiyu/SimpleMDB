@@ -13,7 +13,19 @@ public class MockActorMovieRepository : IActorMovieRepository
         this.movieRepository = movieRepository;
         actorMovies = [];
         idCounter = 0;
+        Random r = new Random();
+
+        for (int aid = 0; aid < 100; aid++)
+        {
+            int count = r.Next(100);
+            for (int j = 0; j < count; j++)
+            {
+                int mid = r.Next(100);
+                actorMovies.Add(new ActorMovie(idCounter++, aid, mid, "Popo"));
+            } 
+        }
     }
+        
     public async Task<PagedResult<Movie>> ReadAllMoviesByActor(int actorId, int page, int pageSize)
     {
         List<int> movieIds = actorMovies.FindAll((am) => am.ActorId == actorId).ConvertAll((am) => am.MovieId);

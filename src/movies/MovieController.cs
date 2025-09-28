@@ -31,8 +31,8 @@ namespace SimpleMDB
                 List<Movie> movies = pagedResult.Values;
                 int movieCount = pagedResult.TotalCount;
 
-                string html = MoviesHtmlTemplates.ViewAllMoviesGet(movies, movieCount, page, size);
-                html = HtmlTemplates.Base("SimpleMDB", "Movies View All Page", html, message);
+                string content = MoviesHtmlTemplates.ViewAllMoviesGet(movies, movieCount, page, size);
+                string html = HtmlTemplates.Base("SimpleMDB", "Movies View All Page", content, message);
                 await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
             }
             else

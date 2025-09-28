@@ -19,6 +19,7 @@ public class MoviesHtmlTemplates
                         <td>{movie.rating}</td>
                         <td><a href=""/movies/view?mid={movie.Id}"">View</a></td>
                         <td><a href=""/movies/edit?mid={movie.Id}"">Edit</a></td>
+                        <td><a href=""/movies/actors?mid={movie.Id}"">Actors</a></td>
                         <td><form action=""/movies/remove?mid={movie.Id}"" method=""POST"" onsubmit=""return confirm('Are you sure you want to remove this movie?');"">
                             <input type=""submit"" value=""Remove"">
                             </form>
@@ -27,12 +28,16 @@ public class MoviesHtmlTemplates
                     ";
         }
 
+        string pDisable = (page > 1).ToString().ToLower();
+        string nDisable = (page < pageCount).ToString().ToLower();
+
         string html = $@"
-            <div class-""add"">
+            <div class=""add"">
                 <a href=""/movies/add"">Add New Movie</a>
             </div>        
-                <table class=""viewall"">
-                    <thead>
+            <table class=""viewall"">
+                <thead>
+                    <tr>
                         <th>Id</th>
                         <th>Title</th>
                         <th>Year</th>
@@ -46,15 +51,15 @@ public class MoviesHtmlTemplates
                         {rows}
                     </tbody>
                 </table>
-                <div class""pagination"">
-                    <a href=""?page=1&size={size}"">First</a>
-                    <a href=""?page={page - 1}&size={size}"">Prev</a>
-                    <span>{page} / {pageCount}</span>
-                    <a href=""?page={page + 1}&size={size}"">Next</a>
-                    <a href=""?page={pageCount}&size={size}"">Last</a>
-                </div>
+            <div class=""pagination"">
+                <a href=""?page=1&size={size}"" onclick=""return {pDisable};"">First</a>
+                <a href=""?page={Math.Max(1, page - 1)}&size={size}"" onclick=""return {pDisable};"">Prev</a>
+                <span>{page} / {Math.Max(1, pageCount)}</span>
+                <a href=""?page={Math.Min(pageCount, page + 1)}&size={size}"" onclick=""return {nDisable};"">Next</a>
+                <a href=""?page={pageCount}&size={size}"" onclick=""return {nDisable};"">Last</a>
+            </div>
+            ";
 
-                ";
         return html;
     }
     public static string AddMovieGet(string title, string year, string description, string rating)
@@ -79,22 +84,24 @@ public class MoviesHtmlTemplates
         string html = $@"
                 <table class=""view"">
                     <thead>
-                        <th>Id</th>
-                        <th>Title</th>
-                        <th>Year</th>
-                        <th>Description</th>
-                        <th>Rating</th>
+                        <tr>
+                            <th>Id</th>
+                            <th>Title</th>
+                            <th>Year</th>
+                            <th>Description</th>
+                            <th>Rating</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>{movie.Id}</td>
-                        <td>{movie.Title}</td>
-                        <td>{movie.Year}</td>
-                        <td>{movie.Description}</td>
-                        <td>{movie.rating}</td>
-                    </tr>
+                        <tr>
+                            <td>{movie.Id}</td>
+                            <td>{movie.Title}</td>
+                            <td>{movie.Year}</td>
+                            <td>{movie.Description}</td>
+                            <td>{movie.rating}</td>
+                        </tr>
                     </tbody>
-                ";
+                </table>";
         return html;
     }
     public static string EditMovieGet(Movie movie, int mid)

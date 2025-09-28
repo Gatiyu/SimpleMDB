@@ -17,20 +17,27 @@ public class ActorMovieHtmlTemplates
                         <td>{movie.Year}</td>
                         <td>{movie.Description}</td>
                         <td>{movie.rating}</td>
-                        <td><form action=""/actors/remove?aid={actor.Id}&mid{movie.Id}"" method=""POST"" onsubmit=""return confirm('Are you sure you want to remove this actor?');"">
-                            <input type=""submit"" value=""Remove"">
+                        <td><a href=""/movies/view?mid={movie.Id}"">View</a></td>
+                        <td><a href=""/movies/edit?mid={movie.Id}"">Edit</a></td>
+                        <td>
+                            <form action=""/actors/movies/remove?aid={actor.Id}&mid={movie.Id}"" method=""POST"" onsubmit=""return confirm('Are you sure you want to remove this movie from the actor?');"">
+                                <input type=""submit"" value=""Remove"">
                             </form>
                         </td>
                     </tr>
                     ";
         }
 
+        string pDisable = (page > 1).ToString().ToLower();
+        string nDisable = (page < pageCount).ToString().ToLower();
+
         string html = $@"
-            <div class-""add"">
-                <a href=""/actors/add"">Add New Actor</a>
+            <div class=""add"">
+                <a href=""/actors/add?aid={actor.Id}"">Add New Actor</a>
             </div>        
-                <table class=""viewall"">
-                    <thead>
+            <table class=""viewall"">
+                <thead>
+                    <tr>
                         <th>Id</th>
                         <th>Title</th>
                         <th>Year</th>
@@ -39,20 +46,19 @@ public class ActorMovieHtmlTemplates
                         <th>View</th>
                         <th>Edit</th>
                         <th>Remove</th>
-                    </thead>
-                    <tbody>
-                        {rows}
-                    </tbody>
-                </table>
-                <div class""pagination"">
-                    <a href=""?page=1&size={size}"">First</a>
-                    <a href=""?page={page - 1}&size={size}"">Prev</a>
-                    <span>{page} / {pageCount}</span>
-                    <a href=""?page={page + 1}&size={size}"">Next</a>
-                    <a href=""?page={pageCount}&size={size}"">Last</a>
-                </div>
-
-                ";
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows}
+                </tbody>
+            </table>
+            <div class=""pagination"">
+                <a href=""?mid={actor.Id}&page=1&size={size}"" onclick=""return {pDisable};"">First</a>
+                <a href=""?mid={actor.Id}&page={Math.Max(1, page - 1)}&size={size}"" onclick=""return {pDisable};"">Prev</a>
+                <span>{page} / {Math.Max(1, pageCount)}</span>
+                <a href=""?mid={actor.Id}&page={Math.Min(pageCount, page + 1)}&size={size}"" onclick=""return {nDisable};"">Next</a>
+                <a href=""?mid={actor.Id}&page={pageCount}&size={size}"" onclick=""return {nDisable};"">Last</a>
+            </div>";
         return html;
     }
 }
