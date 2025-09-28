@@ -106,16 +106,18 @@ public class HttpUtils
 
         if (File.Exists(fullPath))
         {
-            string ext = Path.GetExtension(fullPath);
+            string ext = Path.GetExtension(fullPath).TrimStart('.');
             string type = SUPPORTED_IANA_MIME_TYPES[ext] ?? "application/octet-stream";
             using var fs = File.OpenRead(fullPath);
 
             res.StatusCode = (int)HttpStatusCode.OK;
             res.ContentType = type;
-            res.ContentLength64 = fs.Length;
 
+            res.ContentLength64 = fs.Length;
             await fs.CopyToAsync(res.OutputStream);
-            fs.Close();
+            res.Close();
         }
+        // If file doesn't exist, do nothing and let the next middleware handle it.
+        // This allows for 404 handling or other routing to take place.
     }
 }
