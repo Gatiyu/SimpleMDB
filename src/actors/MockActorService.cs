@@ -16,10 +16,13 @@ public class MockActorService : IActorService
 
     public async Task<Result<PagedResult<Actor>>> ReadAll(int page, int size)
     {
-        var pagedResult = await actorRepository.ReadAll(page, size);
-        return pagedResult == null
-            ? new Result<PagedResult<Actor>>(new Exception("No results found."))
-            : new Result<PagedResult<Actor>>(pagedResult);
+       var pagedResult = await actorRepository.ReadAll(page, size);
+
+        var result = (pagedResult == null) ?
+        new Result<PagedResult<Actor>>(new Exception("No results found.")) :
+        new Result<PagedResult<Actor>>(pagedResult);
+
+        return await Task.FromResult(result);
     }
 
     public async Task<Result<Actor>> Create(Actor newActor)
@@ -65,9 +68,12 @@ public class MockActorService : IActorService
 
     public async Task<Result<Actor>> Delete(int id)
     {
-        var actor = await actorRepository.Delete(id);
-        return actor == null
-            ? new Result<Actor>(new Exception("Actor could not be deleted."))
-            : new Result<Actor>(actor);
+        Actor? actor = await actorRepository.Delete(id);
+        var result = (actor == null) ?
+        new Result<Actor>(new Exception("Actor could not be deleted.")) :
+        new Result<Actor>(actor);
+
+        return await Task.FromResult(result);
+
     }
 }

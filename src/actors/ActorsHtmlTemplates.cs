@@ -19,6 +19,7 @@ public class ActorsHtmlTemplates
                         <td>{actor.rating}</td>
                         <td><a href=""/actors/view?aid={actor.Id}"">View</a></td>
                         <td><a href=""/actors/edit?aid={actor.Id}"">Edit</a></td>
+\                       <td><a href=""/actors/movies?aid={actor.Id}"">Movies</a></td>
                         <td><form action=""/actors/remove?aid={actor.Id}"" method=""POST"" onsubmit=""return confirm('Are you sure you want to remove this actor?');"">
                             <input type=""submit"" value=""Remove"">
                             </form>

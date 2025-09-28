@@ -34,6 +34,10 @@ namespace SimpleMDB
             var movieService = new MockMovieService(movieRepository);
             var movieController = new MovieController(movieService);
 
+            var actorMovieRepository = new MockActorMovieRepository(actorRepository, movieRepository);
+            var actorMovieService = new MockActorMovieService(actorMovieRepository);
+            var actorMovieController = new ActorMovieController(actorMovieService, actorService, movieService);
+
             router = new HttpRouter();
             router.Use(HttpUtils.ServeStaticFile);
             router.Use(HttpUtils.ReadRequestFormData);
@@ -63,6 +67,8 @@ namespace SimpleMDB
             router.AddGet("/movies/edit", movieController.EditMovieGet);
             router.AddPost("/movies/edit", movieController.EditMoviePost);
             router.AddPost("/movies/remove", movieController.RemoveMoviePost);
+            
+            router.AddGet("/actors/movies", actorMovieController.ViewAllMovieByActor);
         }
 
         public async Task Start()
