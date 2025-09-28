@@ -1,5 +1,4 @@
 namespace SimpleMDB;
-
 public class HtmlTemplates
 {
     public static string Base(string title, string header, string content, string message = "")
