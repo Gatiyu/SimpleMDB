@@ -72,4 +72,10 @@ public class MockUserService : IUserService
             ? new Result<User>(new Exception("User could not be deleted."))
             : new Result<User>(user);
     }
+
+    public async Task<Result<string>> GetToken(string username, string password)
+    {
+        var result = new Result<string>("Error!");
+        return await Task.FromResult(result);
+    }
 }

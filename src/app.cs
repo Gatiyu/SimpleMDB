@@ -43,6 +43,10 @@ namespace SimpleMDB
             router.Use(HttpUtils.ReadRequestFormData);
 
             router.AddGet("/", authController.LandingPageGet);
+            router.AddGet("/register", authController.RegisterGet);
+            router.AddPost("/register", authController.RegisterPost);
+            router.AddGet("/login", authController.LoginGet);
+            router.AddPost("/login", authController.LoginPost);
 
             router.AddGet("/users", userController.ViewAllUsersGet);
             router.AddGet("/users/add", userController.AddUserGet);

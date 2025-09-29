@@ -18,3 +18,9 @@ table, th, td
 {
     border: 1px solid white;
 }
+
+form 
+{
+    display: grid;
+    grid-template-columns: 30%;
+}

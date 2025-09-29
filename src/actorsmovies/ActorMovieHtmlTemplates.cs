@@ -87,7 +87,6 @@ public class ActorMovieHtmlTemplates
             foreach (var (am, actor) in amas)
         {
             if (actor == null) continue;
-            var roleText = string.IsNullOrWhiteSpace(am.RoleName) ? "—" : am.RoleName;
             rows += @$"
                     <tr>
                         <td>{actor.Id}</td>
@@ -95,7 +94,7 @@ public class ActorMovieHtmlTemplates
                         <td>{actor.LastName}</td>
                         <td>{actor.Bio}</td>
                         <td>{actor.rating}</td>
-                        <td>{roleText}</td>
+                        <td>{am.RoleName}</td>
                         <td>
                             <form action=""/movies/actors/remove?amid={am.Id}"" method=""POST"" onsubmit=""return confirm('Are you sure you want to remove this actor from the movie?');"">
                                 <input type=""submit"" value=""Remove"">
