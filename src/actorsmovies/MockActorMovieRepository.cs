@@ -26,32 +26,42 @@ public class MockActorMovieRepository : IActorMovieRepository
         }
     }
         
-    public async Task<PagedResult<Movie>> ReadAllMoviesByActor(int actorId, int page, int pageSize)
+    public async Task<PagedResult<(ActorMovie, Movie)>> ReadAllMoviesByActor(int actorId, int page, int pageSize)
     {
-        List<int> movieIds = actorMovies.FindAll((am) => am.ActorId == actorId).ConvertAll((am) => am.MovieId);
-        List<Movie> movies = [];
-        movieIds.ForEach(async (mid) => movies.Add((await movieRepository.Read(mid))!));
+        List<ActorMovie> ams = actorMovies.FindAll((am) => am.ActorId == actorId);
+        List<(ActorMovie, Movie)> movies = [];
+
+        foreach (var am in ams)
+        {
+            var movie = (await movieRepository.Read(am.MovieId))!;
+            movies.Add((am, movie));
+        }
 
         int totalCount = movies.Count;
         int start = Math.Clamp((page - 1) * pageSize, 0, totalCount);
         int length = Math.Clamp(pageSize, 0, totalCount - start);
-        List<Movie> values = movies.Slice(start, length);
-        var PagedResult = new PagedResult<Movie>(values, totalCount);
+        List<(ActorMovie, Movie)> values = movies.Slice(start, length);
+        var PagedResult = new PagedResult<(ActorMovie, Movie)>(values, totalCount);
 
         return await Task.FromResult(PagedResult);
     }
 
-    public async Task<PagedResult<Actor>> ReadAllActorsByMovie(int movieId, int page, int pageSize)
+    public async Task<PagedResult<(ActorMovie, Actor)>> ReadAllActorsByMovie(int movieId, int page, int pageSize)
     {
-        List<int> actorIds = actorMovies.FindAll((am) => am.MovieId == movieId).ConvertAll((am) => am.ActorId);
-        List<Actor> actors = [];
-        actorIds.ForEach(async (aid) => actors.Add((await actorRepository.Read(aid))!));
+        List<ActorMovie> ams = actorMovies.FindAll((am) => am.MovieId == movieId);
+        List<(ActorMovie, Actor)> actors = [];
+
+        foreach (var am in ams)
+        {
+            var actor = (await actorRepository.Read(am.ActorId))!;
+            actors.Add((am, actor));
+        }
 
         int totalCount = actors.Count;
         int start = Math.Clamp((page - 1) * pageSize, 0, totalCount);
         int length = Math.Clamp(pageSize, 0, totalCount - start);
-        List<Actor> values = actors.Slice(start, length);
-        var PagedResult = new PagedResult<Actor>(values, totalCount);
+        List<(ActorMovie, Actor)> values = actors.Slice(start, length);
+        var PagedResult = new PagedResult<(ActorMovie, Actor)>(values, totalCount);
         
         return await Task.FromResult(PagedResult);
     }

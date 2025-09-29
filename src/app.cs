@@ -67,8 +67,13 @@ namespace SimpleMDB
             router.AddGet("/movies/edit", movieController.EditMovieGet);
             router.AddPost("/movies/edit", movieController.EditMoviePost);
             router.AddPost("/movies/remove", movieController.RemoveMoviePost);
-            
+
             router.AddGet("/actors/movies", actorMovieController.ViewAllMovieByActor);
+            router.AddGet("/actors/movies/add", actorMovieController.AddActorByMovieGet);
+            router.AddPost("/actors/movies/add", actorMovieController.AddMoviesByActor);
+            router.AddPost("/actors/movies/remove", actorMovieController.RemoveMoviesByActor);
+            router.AddGet("/movies/actorrs", actorMovieController.ViewAllActorsByMovie);
+
         }
 
         public async Task Start()

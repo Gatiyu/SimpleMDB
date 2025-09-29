@@ -8,23 +8,23 @@ public class MockActorMovieService : IActorMovieService
     {
         this.actorMovieRepository = actorMovieRepository;
     }
-    public async Task<Result<PagedResult<Movie>>> ReadAllMoviesByActor(int actorId, int page, int size)
+    public async Task<Result<PagedResult<(ActorMovie, Movie)>>> ReadAllMoviesByActor(int actorId, int page, int size)
     {
         var pagedResult = await actorMovieRepository.ReadAllMoviesByActor(actorId, page, size);
 
         var result = (pagedResult == null) ?
-        new Result<PagedResult<Movie>>(new Exception("No movies by actor results found.")) :
-        new Result<PagedResult<Movie>>(pagedResult);
+        new Result<PagedResult<(ActorMovie, Movie)>>(new Exception("No movies by actor results found.")) :
+        new Result<PagedResult<(ActorMovie, Movie)>>(pagedResult);
 
         return await Task.FromResult(result);
     }
-    public async Task<Result<PagedResult<Actor>>> ReadAllActorsByMovie(int movieId, int page, int size)
+    public async Task<Result<PagedResult<(ActorMovie, Actor)>>> ReadAllActorsByMovie(int movieId, int page, int size)
     {
         var pagedResult = await actorMovieRepository.ReadAllActorsByMovie(movieId, page, size);
 
         var result = (pagedResult == null) ?
-        new Result<PagedResult<Actor>>(new Exception("No actors by movies results found.")) :
-        new Result<PagedResult<Actor>>(pagedResult);
+        new Result<PagedResult<(ActorMovie, Actor)>>(new Exception("No actors by movies results found.")) :
+        new Result<PagedResult<(ActorMovie, Actor)>>(pagedResult);
 
         return await Task.FromResult(result);
     }

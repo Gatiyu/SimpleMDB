@@ -129,7 +129,7 @@ namespace SimpleMDB
 
         }
 
-        // POST /actors/eedit?aid=1
+        // POST /actors/edit?aid=1
 
         public async Task EditActorPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
