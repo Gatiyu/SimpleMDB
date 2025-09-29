@@ -11,7 +11,7 @@ public class MockActorMovieRepository : IActorMovieRepository
     {
         this.actorRepository = actorRepository;
         this.movieRepository = movieRepository;
-        actorMovies = [];
+        actorMovies = new List<ActorMovie>();
         idCounter = 0;
         Random r = new Random();
 
@@ -21,7 +21,11 @@ public class MockActorMovieRepository : IActorMovieRepository
             for (int j = 0; j < count; j++)
             {
                 int mid = r.Next(100);
-                actorMovies.Add(new ActorMovie(idCounter++, aid, mid, "Popo"));
+                // avoid creating duplicate ActorMovie entries for the same actor/movie
+                if (!actorMovies.Any(existing => existing.ActorId == aid && existing.MovieId == mid))
+                {
+                    actorMovies.Add(new ActorMovie(idCounter++, aid, mid, "Popo"));
+                }
             } 
         }
     }
@@ -29,7 +33,9 @@ public class MockActorMovieRepository : IActorMovieRepository
     public async Task<PagedResult<(ActorMovie, Movie)>> ReadAllMoviesByActor(int actorId, int page, int pageSize)
     {
         List<ActorMovie> ams = actorMovies.FindAll((am) => am.ActorId == actorId);
-        List<(ActorMovie, Movie)> movies = [];
+        // deduplicate by MovieId so the same movie doesn't appear multiple times for an actor
+        ams = ams.GroupBy(x => x.MovieId).Select(g => g.First()).ToList();
+        List<(ActorMovie, Movie)> movies = new List<(ActorMovie, Movie)>();
 
         foreach (var am in ams)
         {
@@ -49,7 +55,9 @@ public class MockActorMovieRepository : IActorMovieRepository
     public async Task<PagedResult<(ActorMovie, Actor)>> ReadAllActorsByMovie(int movieId, int page, int pageSize)
     {
         List<ActorMovie> ams = actorMovies.FindAll((am) => am.MovieId == movieId);
-        List<(ActorMovie, Actor)> actors = [];
+        // deduplicate by ActorId so the same actor doesn't appear multiple times for a movie
+        ams = ams.GroupBy(x => x.ActorId).Select(g => g.First()).ToList();
+        List<(ActorMovie, Actor)> actors = new List<(ActorMovie, Actor)>();
 
         foreach (var am in ams)
         {

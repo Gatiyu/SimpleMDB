@@ -35,7 +35,7 @@ public class ActorMovieHtmlTemplates
                         <td>{movie.rating}</td>
                         <td>{am.RoleName}</td>
                         <td>
-                            <form action=""/actors/movies/remove?amid={am.Id}"" method=""POST"" onsubmit=""return confirm('Are you sure you want to remove this movie from the actor?');"">
+                            <form action=""/actors/movies/remove?amid={movie.Id}&mid={actor.Id}"" method=""POST"" onsubmit=""return confirm('Are you sure you want to remove this movie from the actor?');"">
                                 <input type=""submit"" value=""Remove"">
                             </form>
                         </td>
@@ -48,7 +48,7 @@ public class ActorMovieHtmlTemplates
 
         string html = $@"
             <div class=""add"">
-                <a href=""/actors/movies/add?aid={actor.Id}"">Add New ActorMovie</a>
+                 <a href=""/actors/movies/add?aid={actor.Id}"">Add New ActorMovie</a>
             </div>        
             <table class=""viewall"">
                 <thead>
@@ -69,24 +69,25 @@ public class ActorMovieHtmlTemplates
                 </tbody>
             </table>
             <div class=""pagination"">
-                <a href=""?mid={actor.Id}&page=1&size={size}"" onclick=""return {pDisable};"">First</a>
-                <a href=""?mid={actor.Id}&page={Math.Max(1, page - 1)}&size={size}"" onclick=""return {pDisable};"">Prev</a>
+                <a href=""?aid={actor.Id}&page=1&size={size}"" onclick=""return {pDisable};"">First</a>
+                <a href=""?aid={actor.Id}&page={Math.Max(1, page - 1)}&size={size}"" onclick=""return {pDisable};"">Prev</a>
                 <span>{page} / {Math.Max(1, pageCount)}</span>
-                <a href=""?mid={actor.Id}&page={Math.Min(pageCount, page + 1)}&size={size}"" onclick=""return {nDisable};"">Next</a>
-                <a href=""?mid={actor.Id}&page={pageCount}&size={size}"" onclick=""return {nDisable};"">Last</a>
+                <a href=""?aid={actor.Id}&page={Math.Min(pageCount, page + 1)}&size={size}"" onclick=""return {nDisable};"">Next</a>
+                <a href=""?aid={actor.Id}&page={pageCount}&size={size}"" onclick=""return {nDisable};"">Last</a>
             </div>";
         return html;
     }
 
     public static string ViewAllActorsByMovie(Movie movie, List<(ActorMovie, Actor)> amas, int totalCount, int page, int size)
-    {   
+    {
         int pageCount = (int)Math.Ceiling((double)totalCount / size);
 
         string rows = "";
 
-        foreach (var (am, actor) in amas)
+            foreach (var (am, actor) in amas)
         {
             if (actor == null) continue;
+            var roleText = string.IsNullOrWhiteSpace(am.RoleName) ? "—" : am.RoleName;
             rows += @$"
                     <tr>
                         <td>{actor.Id}</td>
@@ -94,9 +95,9 @@ public class ActorMovieHtmlTemplates
                         <td>{actor.LastName}</td>
                         <td>{actor.Bio}</td>
                         <td>{actor.rating}</td>
-                        <td>{am.RoleName}</td>
+                        <td>{roleText}</td>
                         <td>
-                            <form action=""/movies/actors/remove?mid={movie.Id}&aid={actor.Id}"" method=""POST"" onsubmit=""return confirm('Are you sure you want to remove this actor from the movie?');"">
+                            <form action=""/movies/actors/remove?amid={am.Id}"" method=""POST"" onsubmit=""return confirm('Are you sure you want to remove this actor from the movie?');"">
                                 <input type=""submit"" value=""Remove"">
                             </form>
                         </td>
@@ -118,6 +119,8 @@ public class ActorMovieHtmlTemplates
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Bio</th>
+                        <th>Rating</th>
+                        <th>Role Name</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -132,7 +135,7 @@ public class ActorMovieHtmlTemplates
                 <a href=""?mid={movie.Id}&page={Math.Min(pageCount, page + 1)}&size={size}"" onclick=""return {nDisable};"">Next</a>
                 <a href=""?mid={movie.Id}&page={pageCount}&size={size}"" onclick=""return {nDisable};"">Last</a>
             </div>";
-        
+
         return html;
     }
 
@@ -154,6 +157,33 @@ public class ActorMovieHtmlTemplates
                 <label for=""mid"">Movies</label>
                 <select name=""mid"" id=""mid"">
                     {movieOptions}
+                </select>
+                <label for=""rolename"">Role Name</label>
+                <input id=""rolename"" name=""rolename"" type=""text"" placeholder=""Role Name"">
+                <input type=""submit"" value=""Add Movie to Actor"">
+            </form>";
+
+        return html;
+    }
+    public static string AddActorsByMovie(Movie movie, List<Actor> actors)
+    {
+        string actorOptions = "";
+
+        foreach (var actor in actors)
+        {
+            actorOptions += $@"<option value=""{actor.Id}"">{actor.FirstName} {actor.LastName}</option>";
+        }
+
+        string html = $@"
+            <form action=""/movies/actors/add"" method=""POST"">
+                
+                <label for=""mid"">Movie</label>
+                <select name=""mid"" id=""mid"">
+                    <option value=""{movie.Id}"">{movie.Title} {movie.Year}</option>
+                </select>
+                <label for=""aid"">Actors</label>
+                <select name=""aid"" id=""aid"">
+                    {actorOptions}
                 </select>
                 <label for=""rolename"">Role Name</label>
                 <input id=""rolename"" name=""rolename"" type=""text"" placeholder=""Role Name"">

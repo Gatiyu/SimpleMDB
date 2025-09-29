@@ -72,7 +72,11 @@ namespace SimpleMDB
             router.AddGet("/actors/movies/add", actorMovieController.AddActorByMovieGet);
             router.AddPost("/actors/movies/add", actorMovieController.AddMoviesByActor);
             router.AddPost("/actors/movies/remove", actorMovieController.RemoveMoviesByActor);
-            router.AddGet("/movies/actorrs", actorMovieController.ViewAllActorsByMovie);
+
+            router.AddGet("/movies/actors", actorMovieController.ViewAllActorsByMovie);
+            router.AddGet("/movies/actors/add", actorMovieController.AddActorsByMovie);
+            router.AddPost("/movies/actors/add", actorMovieController.AddActorsByPost);
+            router.AddPost("/movies/actors/remove", actorMovieController.RemoveActorsByMovie);
 
         }
 

@@ -19,13 +19,12 @@ public class ActorMovieController
         this.movieService = movieService;
     }
 
-    // actor-movie specific endpoints
     // GET /actors/movies?aid=18&page=1&size=5
     public async Task ViewAllMovieByActor(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
     {
         string message = req.QueryString["message"] ?? "";
 
-        int aid = int.TryParse(req.QueryString["mid"], out int m) ? m : 1;
+    int aid = int.TryParse(req.QueryString["aid"], out int m) ? m : 1;
         int page = int.TryParse(req.QueryString["page"], out int p) ? p : 1;
         int size = int.TryParse(req.QueryString["size"], out int s) ? s : 5;
 
@@ -82,6 +81,34 @@ public class ActorMovieController
             await HttpUtils.Redirect(req, res, options, "/");
         }
     }
+    //GET /movies/actors/add?aid=1
+    public async Task AddActorsByMovie(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+    {
+        string message = req.QueryString["message"] ?? "";
+
+        int mid = int.TryParse(req.QueryString["mid"], out int m) ? m : -1;
+
+        var result1 = await movieService.Read(mid);
+        var result2 = await actorMovieService.ReadAllActors();
+
+        if (result1.IsValid && result2.IsValid)
+        {
+            var movie = result1.Value!;
+            var actors = result2.Value!;
+
+            string content = ActorMovieHtmlTemplates.AddActorsByMovie(movie, actors);
+            string html = HtmlTemplates.Base("SimpleMDB", "Add Actors By Movie Page", content, message);
+            await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
+        }
+        else
+        {
+            string error = result1.IsValid ? "" : result1.Error!.Message;
+            error += result2.IsValid ? "" : result2.Error!.Message;
+
+            HttpUtils.AddOptions(options, "redirect", "message", error);
+            await HttpUtils.Redirect(req, res, options, "/");
+        }
+    }
 
     // POST /actors/movies/add (create association)
     public async Task AddMoviesByActor(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
@@ -106,33 +133,59 @@ public class ActorMovieController
             await HttpUtils.Redirect(req, res, options, $"/actors/movies/add?aid={aid}");
         }
     }
-
-    // Now include actor CRUD endpoints, adapted to use actorService here
-
-    //GET /actors?page=1&size=5
-    public async Task ViewAllActorsGet(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+    // POST /actors/movies/add 
+    public async Task AddMoviesByActorPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
     {
-        string message = req.QueryString["message"] ?? "";
+        var formData = (NameValueCollection?)options["req.form"] ?? [];
 
-        int page = int.TryParse(req.QueryString["page"], out int p) ? p : 1;
-        int size = int.TryParse(req.QueryString["size"], out int s) ? s : 5;
+        int aid = int.TryParse(formData["aid"], out int a) ? a : 0;
+        int mid = int.TryParse(formData["mid"], out int m) ? m : 0;
+        string role = formData["rolename"] ?? "";
 
-        var result = await actorService.ReadAll(page, size);
+        var result = await actorMovieService.Create(aid, mid, role);
 
         if (result.IsValid)
         {
-            PagedResult<Actor> pagedResult = result.Value!;
-            List<Actor> actors = pagedResult.Values;
-            int actorCount = pagedResult.TotalCount;
-
-            string html = ActorsHtmlTemplates.ViewAllActorsGet(actors, actorCount, page, size);
-            html = HtmlTemplates.Base("SimpleMDB", "Actors View All Page", html, message);
-            await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
+            HttpUtils.AddOptions(options, "redirect", "message", "Movie added to actor successfully");
+            await HttpUtils.Redirect(req, res, options, $"/actors/movies?aid={aid}");
         }
         else
         {
             HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
+            HttpUtils.AddOptions(options, "redirect", formData);
+            await HttpUtils.Redirect(req, res, options, $"/actors/movies/add?aid={aid}");
+        }
+    }
+
+    // POST /movies/actors/add 
+    public async Task AddActorsByPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+    {
+        var formData = (NameValueCollection?)options["req.form"] ?? [];
+
+        int mid = int.TryParse(formData["mid"], out int m) ? m : -1;
+        int aid = int.TryParse(formData["aid"], out int a) ? a : -1;
+        string role = formData["rolename"] ?? "Popo";
+        // ensure the movie exists
+        var movieResult = await movieService.Read(mid);
+        if (!movieResult.IsValid)
+        {
+            HttpUtils.AddOptions(options, "redirect", "message", movieResult.Error!.Message);
             await HttpUtils.Redirect(req, res, options, "/");
+            return;
+        }
+
+        var result = await actorMovieService.Create(aid, mid, role);
+
+        if (result.IsValid)
+        {
+            HttpUtils.AddOptions(options, "redirect", "message", "Movie added to actor successfully");
+            await HttpUtils.Redirect(req, res, options, $"/movies/actors?mid={mid}");
+        }
+        else
+        {
+            HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
+            HttpUtils.AddOptions(options, "redirect", formData);
+            await HttpUtils.Redirect(req, res, options, $"/movies/actors/add?mid={mid}");
         }
     }
 
@@ -269,7 +322,7 @@ public class ActorMovieController
         else
         {
             HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
-            await HttpUtils.Redirect(req, res, options, $"/actors/movies?aid={result.Value!.ActorId}");
+            await HttpUtils.Redirect(req, res, options, $"/actors");
         }
     }
 
@@ -311,7 +364,26 @@ public class ActorMovieController
         else
         {
             HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
-            await HttpUtils.Redirect(req, res, options, "/actors");
+            await HttpUtils.Redirect(req, res, options, $"/actors");
+        }
+    }
+
+    // POST /movies/actors/remove?amid=1
+    public async Task RemoveActorsByMovie(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+    {
+        int amid = int.TryParse(req.QueryString["amid"], out int a) ? a : -1;
+
+        var result = await actorMovieService.Delete(amid);
+
+        if (result.IsValid)
+        {
+            HttpUtils.AddOptions(options, "redirect", "message", "Movie removed from actor successfully");
+            await HttpUtils.Redirect(req, res, options, "/movies");
+        }
+        else
+        {
+            HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
+            await HttpUtils.Redirect(req, res, options, $"/movies");
         }
     }
 
