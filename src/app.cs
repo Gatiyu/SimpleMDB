@@ -47,6 +47,7 @@ namespace SimpleMDB
             router.AddPost("/register", authController.RegisterPost);
             router.AddGet("/login", authController.LoginGet);
             router.AddPost("/login", authController.LoginPost);
+            router.AddPost("/logout", authController.LogoutPost);
 
             router.AddGet("/users", userController.ViewAllUsersGet);
             router.AddGet("/users/add", userController.AddUserGet);

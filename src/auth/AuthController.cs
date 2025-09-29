@@ -26,7 +26,11 @@ public class AuthController
             <ul>
                 <li><a href=""/register"">Register</a></li>
                 <li><a href=""/login"">Login</a></li>
-                <li><a href=""/logout"">Logout</a></li>
+                <li>
+                <form action=""/logout"" method=""POST"">
+                   <input type=""submit"" value=""Logout"">
+                   </form>
+                </li>
                 <li><a href=""/users"">users</a></li>
                 <li><a href=""/actors"">Actors</a></li>
                 <li><a href=""/movies"">Movies</a></li>
@@ -129,7 +133,7 @@ public class AuthController
         html = HtmlTemplates.Base("SimpleMDB", "Login Page", html, message);
         await HttpUtils.Respond(req, res, options, (int)HttpStatusCode.OK, html);
     }
-    
+
     //POST /login
     public async Task LoginPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
     {
@@ -143,17 +147,53 @@ public class AuthController
 
         if (result.IsValid)
         {
-
+            string token = result.Value!;
             HttpUtils.AddOptions(options, "redirect", "message", "User login successfully.");
+
+            // Create a cookie and set some common attributes. Use AppendCookie so multiple Set-Cookie headers
+            // are preserved even when we redirect the response.
+            var cookie = new Cookie("token", token, "/")
+            {
+                HttpOnly = true,
+                // You can set Secure = true when running over HTTPS
+                Expires = DateTime.Now.AddMinutes(60)
+            };
+
+            res.AppendCookie(cookie);
+            // Also add Authorization header for immediate use if needed.
+            res.AddHeader("Authorization", $"Bearer {token}");
 
             await HttpUtils.Redirect(req, res, options, $"{returnUrl}");
         }
         else
         {
             HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
+            HttpUtils.AddOptions(options, "redirect", "username", username);
             HttpUtils.AddOptions(options, "redirect", "returnUrl", returnUrl);
 
-            await HttpUtils.Redirect(req, res, options, $"/");
+            await HttpUtils.Redirect(req, res, options, "/login");
         }
+    }
+
+    //POST /logout
+    public async Task LogoutPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+    {
+    // Clear the token cookie by setting an expired cookie. Use AppendCookie so redirect keeps the header.
+    var expired = new Cookie("token", "", "/") { Expires = DateTime.Now.AddDays(-1) };
+    res.AppendCookie(expired);
+    res.AddHeader("WWW-Authenticate", @"Bearer error=""invalid_token"", error_description=""The usr logged out.""");
+
+        HttpUtils.AddOptions(options, "redirect", "message", "User logged out sucessfully.");
+
+        await HttpUtils.Redirect(req, res, options, "/login");
+    }
+    public async Task CheckAuth(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+    {
+        await Task.CompletedTask;
+    }
+
+    public async Task CheckAdmin(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
+    {
+        await Task.CompletedTask;
     }
 }

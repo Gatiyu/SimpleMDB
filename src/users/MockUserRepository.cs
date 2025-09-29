@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,12 +25,12 @@ public class MockUserRepository : IUserRepository
 
         Random r = new Random();
 
-        foreach(var username in usernames)
+        foreach (var username in usernames)
         {
             var pass = Path.GetRandomFileName();
             var salt = Path.GetRandomFileName();
             var role = Roles.ROLES[r.Next(Roles.ROLES.Length)];
-            User user = new User(idCount++, username, pass, salt, role );
+            User user = new User(idCount++, username, pass, salt, role);
             users.Add(user);
 
         }
@@ -84,6 +86,12 @@ public class MockUserRepository : IUserRepository
         {
             users.Remove(user);
         }
+        return await Task.FromResult(user);
+    }
+    
+    public async Task<User?> GetUserbyUsername(string username)
+    {
+        User? user = users.FirstOrDefault((u) => u.Username == username);
         return await Task.FromResult(user);
     }
 }

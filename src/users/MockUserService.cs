@@ -1,6 +1,7 @@
 // MockUserService.cs
 using System;
 using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SimpleMDB;
@@ -24,6 +25,10 @@ public class MockUserService : IUserService
 
     public async Task<Result<User>> Create(User newUser)
     {
+        if (string.IsNullOrWhiteSpace(newUser.Role))
+        {
+            newUser.Role = Roles.USER;
+        }
         if (string.IsNullOrWhiteSpace(newUser.Username))
         {
             return new Result<User>(new Exception("Username cannot be empty."));
@@ -32,12 +37,34 @@ public class MockUserService : IUserService
         {
             return new Result<User>(new Exception("Username cannot have more than 16 characters."));
         }
-        
+        else if (await userRepository.GetUserbyUsername(newUser.Username) != null)
+        {
+            return new Result<User>(new Exception("Username is already taken. Choose another username."));
+        }
 
+        if (string.IsNullOrWhiteSpace(newUser.Password))
+        {
+            return new Result<User>(new Exception("Password cannot be empty."));
+        }
+        //else if (newUser.Password.Length < 16)
+        {
+           // return new Result<User>(new Exception("Password cannot have less than 16 characters."));
+        }
+
+        if (!Roles.IsValid(newUser.Role))
+        {
+            return new Result<User>(new Exception("Role is not valid."));
+        }
+
+        newUser.Salt = Path.GetRandomFileName();;
+
+        newUser.Password = Encode(newUser.Password + newUser.Salt);
         var createdUser = await userRepository.Create(newUser);
         return createdUser == null
             ? new Result<User>(new Exception("User could not be created."))
             : new Result<User>(createdUser);
+            
+        
     }
 
     public async Task<Result<User>> Read(int id)
@@ -50,6 +77,10 @@ public class MockUserService : IUserService
 
     public async Task<Result<User>> Update(int id, User newUser)
     {
+        if (string.IsNullOrWhiteSpace(newUser.Role))
+        {
+            newUser.Role = Roles.USER;
+        }
         if (string.IsNullOrWhiteSpace(newUser.Username))
         {
             return new Result<User>(new Exception("Username cannot be empty."));
@@ -58,6 +89,27 @@ public class MockUserService : IUserService
         {
             return new Result<User>(new Exception("Username cannot have more than 16 characters."));
         }
+        else if (await userRepository.GetUserbyUsername(newUser.Username) != null)
+        {
+            return new Result<User>(new Exception("Username is already taken. Choose another username."));
+        }
+
+        if (string.IsNullOrWhiteSpace(newUser.Password))
+        {
+            return new Result<User>(new Exception("Password cannot be empty."));
+        }
+        else if (newUser.Password.Length < 16)
+        {
+            return new Result<User>(new Exception("Password cannot have less than 16 characters."));
+        }
+
+        if (!Roles.IsValid(newUser.Role))
+        {
+            return new Result<User>(new Exception("Role is not valid."));
+        }
+
+        newUser.Salt = Path.GetRandomFileName();
+        newUser.Password = Encode(newUser.Password + newUser.Salt);
 
         var user = await userRepository.Update(id, newUser);
         return user == null
@@ -75,7 +127,25 @@ public class MockUserService : IUserService
 
     public async Task<Result<string>> GetToken(string username, string password)
     {
-        var result = new Result<string>("Error!");
-        return await Task.FromResult(result);
+        User? user = await userRepository.GetUserbyUsername(username);
+
+        if (user != null && string.Equals(user.Password, Encode(password + user.Salt)))
+        {
+            return new Result<string>(Encode($"username={user.Username}&role={user.Role}&expires={DateTime.Now.AddMinutes(60)}"));
+        }
+        else
+        {
+            return await Task.FromResult(new Result<string> (new Exception("Invalid username or password.")));    
+        }
+    }
+
+    public static string Encode(string plaintext)
+    {
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(plaintext)); // Tipo de hash raro
+    }
+    
+    public static string Decode(string cyphertext)
+    {       
+       return Encoding.UTF8.GetString(Convert.FromBase64String(cyphertext)); // Tipo de hash raro
     }
 }
