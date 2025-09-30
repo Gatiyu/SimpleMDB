@@ -15,7 +15,7 @@ public class MySqlActorRepository : IActorRepository
     public MySqlActorRepository(string connectionString)
     {
         this.connectionString = connectionString;
-        Init();
+        //Init();
     }
 
     private void Init()
