@@ -49,39 +49,39 @@ namespace SimpleMDB
             router.AddPost("/login", authController.LoginPost);
             router.AddPost("/logout", authController.LogoutPost);
 
-            router.AddGet("/users", userController.ViewAllUsersGet);
-            router.AddGet("/users/add", userController.AddUserGet);
-            router.AddPost("/users/add", userController.AddUserPost);
-            router.AddGet("/users/view", userController.ViewUserGet);
-            router.AddGet("/users/edit", userController.EditUserGet);
-            router.AddPost("/users/edit", userController.EditUserPost);
-            router.AddPost("/users/remove", userController.RemoveUserPost);
+            router.AddGet("/users", authController.CheckAdmin, userController.ViewAllUsersGet);
+            router.AddGet("/users/add", authController.CheckAdmin, userController.AddUserGet);
+            router.AddPost("/users/add", authController.CheckAdmin, userController.AddUserPost);
+            router.AddGet("/users/view", authController.CheckAdmin, userController.ViewUserGet);
+            router.AddGet("/users/edit", authController.CheckAdmin, userController.EditUserGet);
+            router.AddPost("/users/edit", authController.CheckAdmin, userController.EditUserPost);
+            router.AddPost("/users/remove", authController.CheckAdmin, userController.RemoveUserPost);
 
             router.AddGet("/actors", actorController.ViewAllActorsGet);
-            router.AddGet("/actors/add", actorController.AddActorGet);
-            router.AddPost("/actors/add", actorController.AddActorPost);
-            router.AddGet("/actors/view", actorController.ViewActorGet);
-            router.AddGet("/actors/edit", actorController.EditActorGet);
-            router.AddPost("/actors/edit", actorController.EditActorPost);
-            router.AddPost("/actors/remove", actorController.RemoveActorPost);
+            router.AddGet("/actors/add", authController.CheckAuth, actorController.AddActorGet);
+            router.AddPost("/actors/add", authController.CheckAuth, actorController.AddActorPost);
+            router.AddGet("/actors/view", authController.CheckAuth, actorController.ViewActorGet);
+            router.AddGet("/actors/edit", authController.CheckAuth, actorController.EditActorGet);
+            router.AddPost("/actors/edit", authController.CheckAuth, actorController.EditActorPost);
+            router.AddPost("/actors/remove", authController.CheckAuth, actorController.RemoveActorPost);
 
             router.AddGet("/movies", movieController.ViewAllMoviesGet);
-            router.AddGet("/movies/add", movieController.AddMovieGet);
-            router.AddPost("/movies/add", movieController.AddMoviePost);
-            router.AddGet("/movies/view", movieController.ViewMovieGet);
-            router.AddGet("/movies/edit", movieController.EditMovieGet);
-            router.AddPost("/movies/edit", movieController.EditMoviePost);
-            router.AddPost("/movies/remove", movieController.RemoveMoviePost);
+            router.AddGet("/movies/add", authController.CheckAuth, movieController.AddMovieGet);
+            router.AddPost("/movies/add", authController.CheckAuth, authController.CheckAuth, movieController.AddMoviePost);
+            router.AddGet("/movies/view", authController.CheckAuth, movieController.ViewMovieGet);
+            router.AddGet("/movies/edit", authController.CheckAuth, movieController.EditMovieGet);
+            router.AddPost("/movies/edit", authController.CheckAuth, movieController.EditMoviePost);
+            router.AddPost("/movies/remove", authController.CheckAuth, movieController.RemoveMoviePost);
 
-            router.AddGet("/actors/movies", actorMovieController.ViewAllMovieByActor);
-            router.AddGet("/actors/movies/add", actorMovieController.AddActorByMovieGet);
-            router.AddPost("/actors/movies/add", actorMovieController.AddMoviesByActor);
-            router.AddPost("/actors/movies/remove", actorMovieController.RemoveMoviesByActor);
+            router.AddGet("/actors/movies", authController.CheckAuth, actorMovieController.ViewAllMovieByActor);
+            router.AddGet("/actors/movies/add", authController.CheckAuth, actorMovieController.AddActorByMovieGet);
+            router.AddPost("/actors/movies/add", authController.CheckAuth, actorMovieController.AddMoviesByActor);
+            router.AddPost("/actors/movies/remove", authController.CheckAuth, actorMovieController.RemoveMoviesByActor);
 
-            router.AddGet("/movies/actors", actorMovieController.ViewAllActorsByMovie);
-            router.AddGet("/movies/actors/add", actorMovieController.AddActorsByMovie);
-            router.AddPost("/movies/actors/add", actorMovieController.AddActorsByPost);
-            router.AddPost("/movies/actors/remove", actorMovieController.RemoveActorsByMovie);
+            router.AddGet("/movies/actors", authController.CheckAuth, actorMovieController.ViewAllActorsByMovie);
+            router.AddGet("/movies/actors/add", authController.CheckAuth, actorMovieController.AddActorsByMovie);
+            router.AddPost("/movies/actors/add", authController.CheckAuth, actorMovieController.AddActorsByPost);
+            router.AddPost("/movies/actors/remove", authController.CheckAuth, actorMovieController.RemoveActorsByMovie);
 
         }
 

@@ -1,3 +1,5 @@
+using System.Collections.Specialized;
+
 namespace SimpleMDB;
 
 public interface IUserService
@@ -8,4 +10,5 @@ public interface IUserService
     public Task<Result<User>> Update(int id, User newUser);
     public Task<Result<User>> Delete(int id);
     public Task<Result<string>> GetToken(string username, string password);
+    public Task<Result<NameValueCollection>> ValidateToken(string token);
 }

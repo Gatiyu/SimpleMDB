@@ -56,7 +56,6 @@ public class MockActorRepository : IActorRepository
             "A veteran of the stage and screen, known for their powerful delivery."
         };
 
-
         var random = new Random();
 
         for (int i = 0; i < firstNames.Length; i++)

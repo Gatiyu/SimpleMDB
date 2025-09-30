@@ -4,6 +4,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
 using System.Web;
+using System.Net.Sockets;
 
 namespace SimpleMDB;
 
@@ -189,11 +190,45 @@ public class AuthController
     }
     public async Task CheckAuth(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
     {
-        await Task.CompletedTask;
+        string token = req.Headers["Autorization"]?.Substring(7) ?? req.Cookies["token"]?.Value ?? "";
+        var result = await userService.ValidateToken(token);
+
+        if (result.IsValid)
+        {
+            var claims = result.Value!;
+            options["claims"] = claims;
+        }
+        else
+        {
+            HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
+
+            await HttpUtils.Redirect(req, res, options, "/login");
+        }
     }
 
     public async Task CheckAdmin(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
     {
-        await Task.CompletedTask;
+        string token = req.Headers["Autorization"]?.Substring(7) ?? req.Cookies["token"]?.Value ?? "";
+        var result = await userService.ValidateToken(token);
+
+        if (result.IsValid) 
+        {
+            if (result.Value!["role"] == Roles.ADMIN)
+            {
+                options["claims"] = result.Value!;
+            }
+            else
+            {
+                HttpUtils.AddOptions(options, "redirect", "message", "Authentication completed but not authorized. You must be an admin to access this resource.");
+
+                await HttpUtils.Redirect(req, res, options, "/login");
+            }
+        }
+        else
+        {
+            HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
+
+            await HttpUtils.Redirect(req, res, options, "/login");
+        }
     }
 }

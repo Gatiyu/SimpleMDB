@@ -1,8 +1,10 @@
 // MockUserService.cs
 using System;
+using System.Collections.Specialized;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace SimpleMDB;
 
@@ -135,10 +137,25 @@ public class MockUserService : IUserService
         }
         else
         {
-            return await Task.FromResult(new Result<string> (new Exception("Invalid username or password.")));    
+            return new Result<string> (new Exception("Invalid username or password."));    
         }
     }
 
+    public async Task<Result<NameValueCollection>> ValidateToken(string token)
+    {
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            NameValueCollection? claims = HttpUtility.ParseQueryString(Decode(token));
+
+            //if(claims["expires"]< DateTime.Now) {// send null}
+            return new Result<NameValueCollection>(claims);
+        }
+        else
+        {
+            var result = new Result<NameValueCollection>(new Exception("Token is null or empty. Invalid token."));
+            return await Task.FromResult(result);
+        }
+    }
     public static string Encode(string plaintext)
     {
         return Convert.ToBase64String(Encoding.UTF8.GetBytes(plaintext)); // Tipo de hash raro
