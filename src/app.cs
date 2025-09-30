@@ -27,7 +27,7 @@ namespace SimpleMDB
             var authController = new AuthController(userService);
 
             //var actorRepository = new MockActorRepository();
-            actorRepository = new MySqlActorRepository(Server=localhost;Database=simplemdb;Iud=root;Pwd=12345;);
+            var actorRepository = new MySqlActorRepository("Server=localhost;Database=simplemdb;Uid=root;Pwd=12345;");
             var actorService = new MockActorService(actorRepository);
             var actorController = new ActorController(actorService);
 
