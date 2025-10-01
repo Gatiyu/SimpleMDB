@@ -209,8 +209,8 @@ public class ActorMovieController
     {
         var formData = (NameValueCollection?)options["req.form"] ?? [];
 
-        string firstname = formData["firstname"] ?? "";
-        string lastname = formData["firstname"] ?? "";
+    string firstname = formData["firstname"] ?? "";
+    string lastname = formData["lastname"] ?? "";
         string bio = formData["bio"] ?? "";
         float rating = float.TryParse(formData["rating"], out float r) ? r : 5F;
 
