@@ -36,7 +36,8 @@ namespace SimpleMDB
             var movieService = new MockMovieService(movieRepository);
             var movieController = new MovieController(movieService);
 
-            var actorMovieRepository = new MockActorMovieRepository(actorRepository, movieRepository);
+            //var actorMovieRepository = new MockActorMovieRepository(actorRepository, movieRepository);
+            var actorMovieRepository = new MySqlActorMovieRepository("Server=localhost;Database=simplemdb;Uid=root;Pwd=12345;");
             var actorMovieService = new MockActorMovieService(actorMovieRepository);
             var actorMovieController = new ActorMovieController(actorMovieService, actorService, movieService);
 

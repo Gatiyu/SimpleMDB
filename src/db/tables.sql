@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS Actors
     lastname NVARCHAR(64) NOT NULL,
     bio NVARCHAR(4096),
     rating float
-)
+);
 
 CREATE TABLE IF NOT EXISTS Movies
 (
@@ -14,4 +14,14 @@ CREATE TABLE IF NOT EXISTS Movies
     year int NOT NULL,
     description NVARCHAR(4096),
     rating float
-)
+);
+
+CREATE TABLE IF NOT EXISTS ActorsMovies
+(
+    id int AUTO_INCREMENT PRIMARY KEY,
+    actorId INT NOT NULL,
+    movieId INT NOT NULL,
+    roleName NVARCHAR(64),
+    FOREIGN KEY (actorId) REFERENCES Actors(id) ON DELETE CASCADE,
+    FOREIGN KEY (movieId) REFERENCES Movies(id) ON DELETE CASCADE
+);
