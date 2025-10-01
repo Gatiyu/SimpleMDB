@@ -93,9 +93,12 @@ public class MockUserService : IUserService
         {
             return new Result<User>(new Exception("Username cannot have more than 16 characters."));
         }
-        else if (await userRepository.GetUserbyUsername(newUser.Username) != null)
-        {
-            return new Result<User>(new Exception("Username is already taken. Choose another username."));
+        else { // Check if username is taken by another user
+            var existing = await userRepository.GetUserbyUsername(newUser.Username);
+            if (existing != null && existing.Id != id)
+            {
+                return new Result<User>(new Exception("Username is already taken. Choose another username."));
+            }
         }
 
         if (string.IsNullOrWhiteSpace(newUser.Password))
