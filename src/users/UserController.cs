@@ -92,7 +92,7 @@ namespace SimpleMDB
         {
             string message = req.QueryString["message"] ?? "";
 
-            int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : 1;
+            int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : -1;
 
             Result<User> result = await userService.Read(uid);
 
@@ -112,7 +112,7 @@ namespace SimpleMDB
         {
             string message = req.QueryString["message"] ?? "";
 
-            int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : 1;
+            int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : -1;
 
             Result<User> result = await userService.Read(uid);
 
@@ -128,11 +128,11 @@ namespace SimpleMDB
 
         }
 
-        // POST /users/eedit?uid=1
+        // POST /users/edit?uid=1
 
         public async Task EditUserPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
-            int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : 1;
+            int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : -1;
 
             var formData = (NameValueCollection?)options["req.form"] ?? [];
 
@@ -145,6 +145,10 @@ namespace SimpleMDB
 
             var result = await userService.Update(uid, newUser);
 
+            Console.WriteLine("#######");
+            Console.WriteLine(newUser);
+            Console.WriteLine(result);
+
             if (result.IsValid)
             {
                 HttpUtils.AddOptions(options, "redirect", "message", "User edited successfully!");
@@ -153,7 +157,7 @@ namespace SimpleMDB
             else
             {
                 HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
-                await HttpUtils.Redirect(req, res, options, "/users/add");
+                await HttpUtils.Redirect(req, res, options, $"/users/edit?uid={uid}");
             }
         }
 
@@ -162,7 +166,7 @@ namespace SimpleMDB
           public async Task RemoveUserPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
 
-            int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : 1;
+            int uid = int.TryParse(req.QueryString["uid"], out int u) ? u : -1;
 
             Result<User> result = await userService.Delete(uid);
 

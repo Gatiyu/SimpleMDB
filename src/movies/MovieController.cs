@@ -156,7 +156,7 @@ namespace SimpleMDB
             {
                 HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
 
-                await HttpUtils.Redirect(req, res, options, "/movies/edit");
+                await HttpUtils.Redirect(req, res, options, $"/movies/edit?uid={mid}");
             }
         }
 

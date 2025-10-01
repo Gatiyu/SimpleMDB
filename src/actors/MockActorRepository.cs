@@ -60,7 +60,7 @@ public class MockActorRepository : IActorRepository
 
         for (int i = 0; i < firstNames.Length; i++)
         {
-            float rating = (float)Math.Round(random.NextDouble() * 10, 1); // Ratings between 6.0 and 10.0
+            float rating = (float)Math.Round(random.NextDouble() * 10, 1);
             string career = highlights[i % highlights.Length];
             string bio = $"{firstNames[i]} {lastNames[i]} is an actor known for their workk in {career}. " +
                          "Over their career, they have garnered critical acclaim and a dedicated fanbase.";

@@ -23,7 +23,7 @@ public class ActorMovieHtmlTemplates
 
         string rows = "";
 
-        foreach (var (am, movie) in actorMovies)
+            foreach (var (am, movie) in actorMovies)
         {
             if (movie == null) continue;
             rows += @$"
@@ -35,7 +35,7 @@ public class ActorMovieHtmlTemplates
                         <td>{movie.rating}</td>
                         <td>{am.RoleName}</td>
                         <td>
-                            <form action=""/actors/movies/remove?amid={movie.Id}&mid={actor.Id}"" method=""POST"" onsubmit=""return confirm('Are you sure you want to remove this movie from the actor?');"">
+                            <form action=""/actors/movies/remove?amid={am.Id}&mid={actor.Id}"" method=""POST"" onsubmit=""return confirm('Are you sure you want to remove this movie from the actor?');"">
                                 <input type=""submit"" value=""Remove"">
                             </form>
                         </td>

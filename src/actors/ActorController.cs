@@ -93,7 +93,7 @@ namespace SimpleMDB
         {
             string message = req.QueryString["message"] ?? "";
 
-            int aid = int.TryParse(req.QueryString["aid"], out int u) ? u : 1;
+            int aid = int.TryParse(req.QueryString["aid"], out int u) ? u : -1;
 
             Result<Actor> result = await actorService.Read(aid);
 
@@ -113,7 +113,7 @@ namespace SimpleMDB
         {
             string message = req.QueryString["message"] ?? "";
 
-            int aid = int.TryParse(req.QueryString["aid"], out int u) ? u : 1;
+            int aid = int.TryParse(req.QueryString["aid"], out int u) ? u : -1;
 
             Result<Actor> result = await actorService.Read(aid);
 
@@ -133,7 +133,7 @@ namespace SimpleMDB
 
         public async Task EditActorPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
-            int aid = int.TryParse(req.QueryString["aid"], out int u) ? u : 1;
+            int aid = int.TryParse(req.QueryString["aid"], out int u) ? u : -1;
 
             var formData = (NameValueCollection?)options["req.form"] ?? [];
 
@@ -156,7 +156,7 @@ namespace SimpleMDB
             {
                 HttpUtils.AddOptions(options, "redirect", "message", result.Error!.Message);
 
-                await HttpUtils.Redirect(req, res, options, "/actors/edit");
+                await HttpUtils.Redirect(req, res, options, $"/actors/edit?uid={aid}");
             }
         }
 
@@ -165,7 +165,7 @@ namespace SimpleMDB
           public async Task RemoveActorPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {
 
-            int aid = int.TryParse(req.QueryString["aid"], out int u) ? u : 1;
+            int aid = int.TryParse(req.QueryString["aid"], out int u) ? u : -1;
 
             Result<Actor> result = await actorService.Delete(aid);
 
