@@ -25,7 +25,6 @@ public class HttpUtils
 
         prop.Add(entries);
     }
-    // Convenience overload: add all entries from a NameValueCollection directly under the given name
     public static void AddOptions(Hashtable options, string name, NameValueCollection entries)
     {
         var prop = (NameValueCollection?)options[name] ?? new NameValueCollection();
