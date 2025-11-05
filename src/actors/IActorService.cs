@@ -7,4 +7,5 @@ public interface IActorService
     public Task<Result<Actor>> Read(int id);
     public Task<Result<Actor>> Update(int id, Actor newActor);
     public Task<Result<Actor>> Delete(int id);
+    public Task<Result<PagedResult<Movie>>> GetMoviesByActorId(int actorId, int page, int size);
 }

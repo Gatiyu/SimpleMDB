@@ -161,7 +161,7 @@ namespace SimpleMDB
             }
         }
 
-        //GET /users/remove?uid=1
+        //POST /users/remove?uid=1
         
           public async Task RemoveUserPost(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
         {

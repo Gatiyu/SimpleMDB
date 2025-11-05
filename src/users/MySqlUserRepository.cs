@@ -16,7 +16,7 @@ public class MySqlUserRepository : IUserRepository
     public MySqlUserRepository(string connectionString)
     {
         this.connectionString = connectionString;
-        //Init();
+        Init();
     }
 
     private void Init()

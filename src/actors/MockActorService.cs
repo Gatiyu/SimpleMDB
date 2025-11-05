@@ -74,6 +74,12 @@ public class MockActorService : IActorService
         new Result<Actor>(actor);
 
         return await Task.FromResult(result);
+    }
 
+    public async Task<Result<PagedResult<Movie>>> GetMoviesByActorId(int actorId, int page, int size)
+    {
+        // For the mock implementation, we'll return an empty result since we don't have the actual actor-movie relationships
+        var emptyResult = new PagedResult<Movie>(new List<Movie>(), 0);
+        return await Task.FromResult(new Result<PagedResult<Movie>>(emptyResult));
     }
 }

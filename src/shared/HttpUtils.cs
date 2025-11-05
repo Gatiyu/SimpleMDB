@@ -82,7 +82,7 @@ public class HttpUtils
         { "html", "text/html" },
         { "css", "text/css" },
         { "js", "application/javascript" },
-    //     { "json", "application/json" },
+        { "json", "application/json" },
     //     { "png", "image/png" },
     //     { "jpg", "image/jpeg" },
     //     { "jpeg", "image/jpeg" },
@@ -96,6 +96,23 @@ public class HttpUtils
     //     { "mp3", "audio/mpeg" },
     //     { "mp4", "video/mp4" }
     };
+
+    public static async Task RespondJson(HttpListenerRequest req, HttpListenerResponse res, Hashtable options, int statusCode, string json)
+    {
+        byte[] content = Encoding.UTF8.GetBytes(json);
+        res.StatusCode = statusCode;
+        res.ContentEncoding = Encoding.UTF8;
+        res.ContentType = "application/json";
+        res.ContentLength64 = content.LongLength;
+        await res.OutputStream.WriteAsync(content);
+        res.Close();
+    }
+
+    public static async Task<string> GetRequestBody(HttpListenerRequest req)
+    {
+        using var reader = new StreamReader(req.InputStream, req.ContentEncoding);
+        return await reader.ReadToEndAsync();
+    }
 
     public static async Task ServeStaticFile(HttpListenerRequest req, HttpListenerResponse res, Hashtable options)
     {

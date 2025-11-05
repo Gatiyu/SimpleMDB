@@ -182,7 +182,7 @@ public class AuthController
     // Clear the token cookie by setting an expired cookie. Use AppendCookie so redirect keeps the header.
     var expired = new Cookie("token", "", "/") { Expires = DateTime.Now.AddDays(-1) };
     res.AppendCookie(expired);
-    res.AddHeader("WWW-Authenticate", @"Bearer error=""invalid_token"", error_description=""The usr logged out.""");
+    res.AddHeader("WWW-Authenticate", @"Bearer error=""invalid_token"", error_description=""The user logged out.""");
 
         HttpUtils.AddOptions(options, "redirect", "message", "User logged out sucessfully.");
 
