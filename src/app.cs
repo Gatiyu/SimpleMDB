@@ -14,7 +14,7 @@ namespace SimpleMDB
 
         public App()
         {
-            string host = "http://127.0.0.1:8081/";
+            string host = "http://127.0.0.1:3000/";
             server = new HttpListener();
             server.Prefixes.Add(host);
             requestId = 0;
@@ -30,7 +30,7 @@ namespace SimpleMDB
             var actorRepository = new MySqlActorRepository("Server=localhost;Database=simplemdb;Uid=root;Pwd=12345;");
             var actorService = new MockActorService(actorRepository);
             var actorController = new ActorController(actorService);
-            var actorApiController = new ActorApiController(actorService);
+            //var actorApiController = new ActorApiController(actorService);
 
             //var movieRepository = new MockMovieRepository();
             var movieRepository = new MySqlMovieRepository("Server=localhost;Database=simplemdb;Uid=root;Pwd=12345;");
@@ -45,6 +45,8 @@ namespace SimpleMDB
             router = new HttpRouter();
             router.Use(HttpUtils.ServeStaticFile);
             router.Use(HttpUtils.ReadRequestFormData);
+            var apiMiddleware = new ApiMiddleware(userService, actorService, movieService, actorMovieService);
+            router.Use(apiMiddleware.Handle);
 
             router.AddGet("/", authController.LandingPageGet);
             router.AddGet("/register", authController.RegisterGet);
@@ -60,14 +62,6 @@ namespace SimpleMDB
             router.AddGet("/users/edit", authController.CheckAdmin, userController.EditUserGet);
             router.AddPost("/users/edit", authController.CheckAdmin, userController.EditUserPost);
             router.AddPost("/users/remove", authController.CheckAdmin, userController.RemoveUserPost);
-
-            // API v1 Routes
-            router.AddGet("/api/v1/actors", actorApiController.GetActors);
-            router.AddPost("/api/v1/actors", authController.CheckAuth, actorApiController.CreateActor);
-            router.AddGet("/api/v1/actors/{id}", actorApiController.GetActor);
-            router.AddPut("/api/v1/actors/{id}", authController.CheckAuth, actorApiController.UpdateActor);
-            router.AddDelete("/api/v1/actors/{id}", authController.CheckAuth, actorApiController.DeleteActor);
-            router.AddGet("/api/v1/actors/{id}/movies", actorApiController.GetActorMovies);
 
             // Web Routes
             router.AddGet("/actors", actorController.ViewAllActorsGet);
